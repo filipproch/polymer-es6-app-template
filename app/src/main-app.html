@@ -1,0 +1,76 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="./behaviors/automatic-localize-behavior.html">
+
+<link rel="import" href="./styles/shared-styles.html">
+
+<link rel="import" href="./elements/general-page-router.html">
+
+<dom-module id="main-app">
+    <template>
+        <style include="shared-styles">
+            :host {
+                @apply(--layout-fullbleed);
+            }
+
+            #pager {
+                @apply(--layout-fit);
+            }
+        </style>
+
+        <general-page-router
+                id="router"
+                app="[[app]]">
+        </general-page-router>
+
+        <iron-pages id="pager" role="main" selected="[[app.page]]" attr-for-selected="name">
+            <home-page name="home"></home-page>
+            <auth-page name="auth"></auth-page>
+        </iron-pages>
+    </template>
+    <script>
+      (function () {
+        'use strict'
+
+        class MainAppComponent {
+
+          get behaviors () {
+            return TemplateApp.Behaviors.flatten([
+              TemplateApp.AppLocalizeBehavior,
+              TemplateApp.Redux.Behavior
+            ])
+          }
+
+          beforeRegister () {
+            this.is = 'main-app'
+            this.properties = {
+              /**
+               *
+               */
+              app: {
+                type: Object,
+                statePath: 'app'
+              },
+
+              /**
+               *
+               */
+              data: {
+                type: Object,
+                statePath: 'data'
+              }
+            }
+          }
+
+          created () {
+            TemplateApp.Elements.Template = this
+          }
+
+        }
+        Polymer(MainAppComponent)
+      })()
+    </script>
+</dom-module>

@@ -1,0 +1,23 @@
+machine:
+  node:
+    version: 7.2.1
+
+dependencies:
+  override:
+    - npm install
+    - ./node_modules/.bin/bower install
+
+test:
+  override:
+    - ./node_modules/.bin/gulp test
+
+deployment:
+  production:
+    tag: /v[0-9]+(\.[0-9]+)*/
+    commands:
+      - ./node_modules/.bin/gulp deploy --prod
+
+  development:
+    branch: master
+    commands:
+      - ./node_modules/.bin/gulp deploy

@@ -1,0 +1,21 @@
+{
+  "entrypoint": "app/index.html",
+  "shell": "app/src/main-app.html",
+  "fragments": [
+    "app/src/pages/auth-page.html",
+    "app/src/pages/home-page.html"
+  ],
+  "sources": [
+    "app/scripts/**/*",
+    "!app/**/*.tmpl.js",
+    "app/src/**/*",
+    "!app/bower_components"
+  ],
+  "extraDependencies": [
+    "app/bower_components/webcomponentsjs/webcomponents-lite.min.js",
+    "app/bower_components/redux/index.js",
+    "app/images/**/*",
+    "app/data/**/*",
+    "app/styles/**/*"
+  ]
+}

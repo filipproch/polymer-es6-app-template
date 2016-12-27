@@ -1,0 +1,20 @@
+{
+  "environments": {
+    "prod": {
+      "vars": {
+        "env": "prod"
+      },
+      "baseDir": "./build/bundled"
+    },
+    "dev": {
+      "vars": {
+        "env": "dev"
+      },
+      "baseDir": "./app"
+    }
+  },
+  "defaultEnv": "dev",
+  "globalVars": {
+    "appName": "The Ultimate App"
+  }
+}

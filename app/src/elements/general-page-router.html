@@ -1,0 +1,196 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+
+<dom-module id="general-page-router">
+    <template>
+        <app-location
+                route="{{route}}"
+                query-params="{{query}}">
+        </app-location>
+        <app-route
+                id="appRoute"
+                route="[[route]]"
+                pattern="/:page"
+                data="{{pageData}}"
+                tail="{{tail}}">
+        </app-route>
+    </template>
+    <script>
+      (function () {
+        'use strict'
+
+        class GeneralPageRouter {
+
+          get behaviors () {
+            return TemplateApp.Behaviors.flatten([])
+          }
+
+          beforeRegister () {
+            this.is = 'general-page-router'
+
+            this.properties = {
+              /**
+               * The main app object
+               */
+              app: {
+                type: Object
+              },
+
+              /**
+               * Top-level route object
+               */
+              route: {
+                type: Object
+              },
+
+              /**
+               * The default page to go if invalid URL
+               */
+              fallbackPage: {
+                type: String,
+                value: 'home'
+              },
+
+              /**
+               * All pages present on the page
+               */
+              availablePages: {
+                type: Object,
+                value: [
+                  'auth',
+                  'home'
+                ]
+              },
+
+              /**
+               * Page the user came originally to before being redirected to auth screen
+               */
+              _originPage: {
+                type: String,
+                value: null
+              },
+
+              /**
+               * Whether to log all method calls and events to console
+               */
+              _verboseLogging: {
+                type: Boolean,
+                value: true
+              }
+            }
+            this.observers = [
+              '_onRoutePathChanged(route.path, availablePages)',
+              '_onAuthChanged(app.auth)'
+            ]
+          }
+
+          /**
+           * Redirects to page with given ID by changing the URL, non-existing IDs are handled automatically
+           */
+          redirectToPage (pageId) {
+            this._log('redirectToPage', pageId)
+            // check if we aren't already on that page
+            if (this.app.page && pageId === this.app.page) {
+              return
+            }
+            // debounce the change so we don't call it many times (good for redirects)
+            this.debounce('redirect-page', function () {
+              window.location = '/' + pageId
+            }.bind(this), 300)
+          }
+
+          /**
+           * Loads resource into page (importHref), path is relative to main component
+           */
+          loadPathResource (path) {
+            this._log(`loadPathResource(${path})`)
+            return new Promise((resolve, reject) => {
+              TemplateApp.Elements.Template.importHref(
+                TemplateApp.Elements.Template.resolveUrl(path), () => {
+                  resolve()
+                }, (e) => {
+                  console.warn('loadPathResource(' + path + ') - failed', e)
+                  reject(e)
+                }, true)
+            })
+          }
+
+          /**
+           * Handles auth state changes
+           */
+          _onAuthChanged () {
+            this._log('_onAuthChanged', this.app.auth)
+            this._onRoutePathChanged()
+          }
+
+          /**
+           * Handles all changes to the URL route
+           */
+          _onRoutePathChanged () {
+            this._log(`_onRoutePathChanged() route=`, this.route)
+            if (this.app && this.route && this.availablePages && this._validateAuthStateLocation()) {
+              if (this.$.appRoute.active) {
+                let pageId = this.$.appRoute.data.page
+                if (this.availablePages.indexOf(pageId) !== -1) {
+                  if (!this.app.page || this.app.page === null || this.app.page !== pageId) {
+                    this._loadPage(pageId)
+                  }
+                } else {
+                  this.redirectToPage(this.fallbackPage)
+                }
+              } else {
+                // todo
+              }
+            }
+          }
+
+          /**
+           * Validates that user is not in the app if not authorized, redirects him if necessary
+           */
+          _validateAuthStateLocation () {
+            this._log('_validateAuthStateLocation')
+            if (this.app.auth && this.app.auth.state !== 'initializing') {
+              if (this.app.auth.user === null && (!this.app.page || this.app.page !== 'auth')) {
+                if (this._originPage === null) {
+                  this._originPage = this.app.page
+                }
+
+                this.redirectToPage('auth')
+                return false
+              } else if (this.app.auth.user !== null && this.app.page === 'auth') {
+                if (this._originPage !== null) {
+                  this.redirectToPage(this._originPage)
+                  this._originPage = null
+                } else {
+                  this.redirectToPage(this.fallbackPage)
+                }
+                return false
+              }
+            }
+            return true
+          }
+
+          /**
+           * Loads target page
+           */
+          _loadPage (pageId) {
+            this._log(`_loadPage(${pageId})`)
+            // set the page to global object
+            TemplateApp.updatePage(pageId)
+            // load the page into the site
+            return this.loadPathResource(`/src/pages/${pageId}-page.html`)
+          }
+
+          _log (args) {
+            if (this._verboseLogging) {
+              console.log.apply(window.console, arguments)
+            }
+          }
+
+        }
+        Polymer(GeneralPageRouter)
+      })()
+    </script>
+</dom-module>

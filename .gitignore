@@ -1,2 +1,7 @@
 .idea
 *.iml
+node_modules
+app/bower_components
+build
+typings
+app/scripts/generated

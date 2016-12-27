@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <title>Polymer ES6 Template</title>
+
+    <meta name="theme-color" content="#000">
+    <link rel="manifest" href="/manifest.json">
+
+    <script src="https://www.google-analytics.com/analytics.js" async></script>
+
+    <script src="/scripts/generated/config.js"></script>
+    <script>
+
+      window.TemplateApp = window.TemplateApp || {}
+
+      window.TemplateApp.Config = window.BUILD_CONFIG
+
+      // setup Polymer options
+      window.Polymer = { lazyRegister: true, dom: 'shadow' }
+
+      let analyticsCode = TemplateApp.Config[ 'analyticsCode' ]
+
+      if (analyticsCode) {
+        // Initializes the analytics.js command queue.
+        window.ga = window.ga || function () {
+            (ga.q = ga.q || []).push(arguments)
+          }
+        ga.l = new Date
+
+        // Creates the tracker.
+        ga('create', {
+          trackingId: analyticsCode,
+          cookieDomain: 'auto',
+          cookiePath: '/',
+          siteSpeedSampleRate: 10 // 10% of users.
+        })
+
+        // Setup error tracking before anything else runs.
+        window.onerror = function (message, file, lineNumber, columnNumber, error) {
+          // We don't want to trigger any errors inside window.onerror, so wrap in a try/catch.
+          try {
+            // Some browsers don't support error param yet.
+            if (error !== undefined) {
+              message = error.stack;
+            }
+            ga('send', 'event', 'error', file + ':' + lineNumber, message);
+          } catch (e) {
+            // no-op
+          }
+        }
+      }
+    </script>
+
+    <script src="/bower_components/redux/index.js"></script>
+    <script src="/bower_components/polymer-redux/polymer-redux.js"></script>
+    <script src="/scripts/actions.js"></script>
+    <script src="/scripts/redux-store.js"></script>
+
+    <script src="/scripts/utils.js"></script>
+    <script src="/scripts/elements.js"></script>
+
+    <link rel="import" href="/src/main-app.html">
+</head>
+<body>
+
+<main-app id="mainapp"></main-app>
+
+<script src="/scripts/analytics.js"></script>
+<script src="/scripts/service-worker-helper.js"></script>
+<script src="/scripts/compatibility.js"></script>
+
+</body>
+</html>

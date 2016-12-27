@@ -1,0 +1,1 @@
+window.BUILD_CONFIG = {"appName":"The Ultimate App","vars":{"env":"dev"},"baseDir":"./app","version_code":"1482825585358#21e1b4e3d4f2cb52c9d0","version_string":"1.0.0","build_timestamp":1482825585358}
